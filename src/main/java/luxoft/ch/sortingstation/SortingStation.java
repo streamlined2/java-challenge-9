@@ -13,6 +13,10 @@ public class SortingStation {
 	private final int trackCapacity;
 
 	public SortingStation(int trackNumber, int trackCapacity) {
+		if (trackNumber <= 1)
+			throw new IllegalArgumentException("number of tracks should be greater than 1");
+		if (trackCapacity < 1)
+			throw new IllegalArgumentException("track capacity should be greater than 0");
 		this.trackNumber = trackNumber;
 		this.trackCapacity = trackCapacity;
 		tracks = new HashMap<>();
@@ -30,8 +34,25 @@ public class SortingStation {
 	private void distribute(Integer... cars) {
 	}
 
+	private static final int NO_TRACK_NUMBER = -1;
+
 	private Queue<Integer> collect() {
-		return new LinkedList<>();
+		var queue = new LinkedList<Integer>();
+		do {
+			int minTrackNo = NO_TRACK_NUMBER;
+			int minCarNo = Integer.MAX_VALUE;
+			for (var trackNo = 0; trackNo < trackNumber; trackNo++) {
+				var track = tracks.get(trackNo);
+				if (!track.isEmpty() && minCarNo < track.peekFirst()) {
+					minCarNo = track.peekFirst();
+					minTrackNo = trackNo;
+				}
+			}
+			if (minTrackNo == NO_TRACK_NUMBER) break; 
+			queue.addLast(minCarNo);
+			tracks.get(minTrackNo).removeFirst();
+		} while (true);
+		return queue;
 	}
 
 	public Queue<Integer> solve(Integer... cars) {
