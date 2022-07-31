@@ -46,8 +46,15 @@ public class SortingStation {
 	}
 
 	private Integer getSuitableTrack(Integer car) {
-		return getSuitableOccupiedTrack(car).orElse(getSuitableFreeTrack()
-				.orElseThrow(() -> new SortingFailureException("no suitable track found for car %d".formatted(car))));
+		Optional<Integer> suitableOccupiedTrack = getSuitableOccupiedTrack(car);
+		if (suitableOccupiedTrack.isPresent()) {
+			return suitableOccupiedTrack.get();
+		}
+		Optional<Integer> suitableFreeTrack = getSuitableFreeTrack();
+		if (suitableFreeTrack.isPresent()) {
+			return suitableFreeTrack.get();
+		}
+		throw new SortingFailureException("no suitable track found for car %d".formatted(car));
 	}
 
 	private Optional<Integer> getSuitableFreeTrack() {

@@ -35,7 +35,7 @@ class SortingStationTest {
 	@Test
 	void test5() {
 		SortingStation station = new SortingStation(2, 2);
-		assertThrows(SortingFailureException.class, () -> station.solve(2, 3, 1));
+		assertEquals(List.of(1, 2, 3), station.solve(2, 3, 1));
 	}
 
 	@Test
