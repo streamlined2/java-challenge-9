@@ -46,32 +46,13 @@ public class SortingStation {
 	}
 
 	private Integer getSuitableTrack(Integer car) {
-		Optional<Integer> suitableOccupiedTrack = getSuitableOccupiedTrack(car);
-		if (suitableOccupiedTrack.isPresent()) {
-			return suitableOccupiedTrack.get();
-		}
-		Optional<Integer> suitableFreeTrack = getSuitableFreeTrack();
-		if (suitableFreeTrack.isPresent()) {
-			return suitableFreeTrack.get();
-		}
-		throw new SortingFailureException("no suitable track found for car %d".formatted(car));
-	}
-
-	private Optional<Integer> getSuitableFreeTrack() {
-		return tracks.entrySet().stream().filter(this::isEmptyTrack).map(Entry::getKey).min(Comparator.naturalOrder());
-	}
-
-	private boolean isEmptyTrack(Entry<Integer, Deque<Integer>> entry) {
-		return entry.getValue().isEmpty();
+		return getSuitableOccupiedTrack(car).or(this::getSuitableFreeTrack)
+				.orElseThrow(() -> new SortingFailureException("no suitable track found for car %d".formatted(car)));
 	}
 
 	private Optional<Integer> getSuitableOccupiedTrack(Integer car) {
 		return tracks.entrySet().stream().filter(entry -> isSuitableOccupiedTrack(entry, car))
 				.max(Comparator.comparing(this::getLastCar)).map(Entry::getKey);
-	}
-
-	private Integer getLastCar(Entry<Integer, Deque<Integer>> entry) {
-		return entry.getValue().peekLast();
 	}
 
 	private boolean isSuitableOccupiedTrack(Entry<Integer, Deque<Integer>> entry, Integer car) {
@@ -81,6 +62,18 @@ public class SortingStation {
 		if (entry.getValue().size() >= trackCapacity)
 			return false;
 		return lastCar.compareTo(car) < 0;
+	}
+
+	private Integer getLastCar(Entry<Integer, Deque<Integer>> entry) {
+		return entry.getValue().peekLast();
+	}
+
+	private Optional<Integer> getSuitableFreeTrack() {
+		return tracks.entrySet().stream().filter(this::isEmptyTrack).map(Entry::getKey).min(Comparator.naturalOrder());
+	}
+
+	private boolean isEmptyTrack(Entry<Integer, Deque<Integer>> entry) {
+		return entry.getValue().isEmpty();
 	}
 
 	private Queue<Integer> collect() {
